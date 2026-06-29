@@ -13,21 +13,21 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   try {
-    const { phone, method } = req.body;
+    const { phone, code } = req.body;
 
     const digits = String(phone || "").replace(/\D/g, "");
     const formattedPhone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
 
-    const verification = await client.verify.v2
+    const verificationCheck = await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verifications.create({
+      .verificationChecks.create({
         to: formattedPhone,
-        channel: method === "call" ? "call" : "sms"
+        code: String(code || "").trim()
       });
 
     return res.status(200).json({
-      success: true,
-      status: verification.status
+      success: verificationCheck.status === "approved",
+      status: verificationCheck.status
     });
   } catch (error) {
     return res.status(500).json({
