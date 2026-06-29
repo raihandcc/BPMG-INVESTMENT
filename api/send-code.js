@@ -10,12 +10,28 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      error: "Method not allowed"
+    });
+  }
 
   try {
-    const { phone, method } = req.body;
+    const { phone, method } = req.body || {};
 
-    const digits = String(phone || "").replace(/\D/g, "");
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        error: "Phone number is required"
+      });
+    }
+
+    const digits = String(phone).replace(/\D/g, "");
     const formattedPhone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
 
     const verification = await client.verify.v2
