@@ -1,4 +1,6 @@
 {
+  "name": "bpmg-investment-otp",
+  "version": "1.0.0",
   "dependencies": {
     "twilio": "^5.0.0"
   }
